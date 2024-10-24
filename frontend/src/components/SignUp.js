@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
+import Header from './Header'; // Adjust path based on your file structure
 
 const SignUp = () => {
   const navigate = useNavigate();

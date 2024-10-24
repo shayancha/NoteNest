@@ -285,6 +285,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import Header from './Header'; // Adjust path based on your file structure
 
 const CreatedCollection = () => {
   const { id } = useParams(); // Get the collection ID from the route
@@ -326,14 +327,7 @@ const CreatedCollection = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-gray-300 py-4">
-        <div className="container mx-auto flex justify-between">
-          <button className="text-red-500 text-xl font-bold" onClick={() => navigate('/home-logged-in')}>
-            Ketchup
-          </button>
-          <span className="text-gray-700">Logged in</span>
-        </div>
-      </header>
+      <Header />
 
       <main className="container mx-auto p-6 text-center">
 
@@ -355,7 +349,7 @@ const CreatedCollection = () => {
               collection.videos.map((video, vidIndex) => (
                 <Link
                   key={vidIndex}
-                  to={`/collection/${collection._id}/video/${vidIndex}`}
+                  to={`/created-collection/${collection._id}/${video._id}/students-progress`}
                   className="block bg-gray-200 text-xl font-semibold px-6 py-4 rounded mb-2"
                 >
                   {`Video ${vidIndex + 1}`}
@@ -371,7 +365,8 @@ const CreatedCollection = () => {
               collection.pdfs.map((pdf, pdfIndex) => (
                 <Link
                   key={pdfIndex}
-                  to={`/collection/${collection._id}/pdf/${pdfIndex}`}
+                  to={`/created-collection/${collection._id}/${pdf._id}/students-progress`}
+                  // /created-collection/:collectionId/:materialId/students-progress
                   className="block bg-gray-200 text-xl font-semibold px-6 py-4 rounded mb-2"
                 >
                   {`PDF ${pdfIndex + 1}`}

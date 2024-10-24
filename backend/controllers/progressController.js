@@ -38,6 +38,7 @@ const updateProgress = async (req, res) => {
         userProgress.questions = questions;
       }
     }
+    console.log(userProgress);
     await userProgress.save();  // Save with the latest version
     return res.status(200).json(userProgress);
   } catch (error) {
@@ -47,7 +48,7 @@ const updateProgress = async (req, res) => {
 };
 
 // Get user progress for a specific material
-const getProgress = async (req, res) => {
+const getProgressOnMaterial = async (req, res) => {
     try {
       const { collectionId, materialId, materialType } = req.params; // Get data from query params
       const userId = req.user._id;
@@ -70,8 +71,26 @@ const getProgress = async (req, res) => {
     }
   };
 
+const getAllStudentsProgress = async (req, res) => {
+    try {
+      const { collectionId, materialId } = req.params;
+      // Find the user progress for all students for the specific material in this collection
+      const progressData = await UserProgress.find({ collectionId, materialId }).populate('userId', 'name email');
+  
+      if (!progressData || progressData.length == 0) {
+        return res.json({});
+      }
+  
+      res.status(200).json({ progressData });
+    } catch (error) {
+      console.error('Error fetching student progress:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+
   module.exports = {
-    getProgress,
+    getProgressOnMaterial,
     updateProgress,
+    getAllStudentsProgress
 };
   

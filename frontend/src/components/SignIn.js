@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService'; // Ensure you have this service to call the backend
+import Header from './Header'; // Adjust path based on your file structure
 
 const SignIn = () => {
   const [email, setEmail] = useState('');

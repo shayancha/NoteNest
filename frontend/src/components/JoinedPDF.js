@@ -5,6 +5,7 @@ import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import Header from './Header'; // Adjust path based on your file structure
 
 const JoinedPDF = () => {
   const location = useLocation();
@@ -40,7 +41,7 @@ const JoinedPDF = () => {
           },
         };
         // const response = await axios.get(`/api/progress?collectionId=${collectionId}&materialId=${materialId}&materialType=pdf`, config); 
-        const response = await axios.get(`http://localhost:5001/api/progress/get/${collectionId}/pdf/${materialId}`, config); 
+        const response = await axios.get(`http://localhost:5001/api/progress/${collectionId}/pdf/${materialId}`, config); 
         console.log(response.data);
         if (response.data) {
           setCurrentPage(response.data.progress || 1); // Set current page from progress
@@ -127,14 +128,7 @@ const JoinedPDF = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-gray-300 py-4">
-        <div className="container mx-auto flex justify-between">
-          <button className="text-red-500 text-xl font-bold" onClick={() => navigate('/home-logged-in')}>
-            Ketchup
-          </button>
-          <span className="text-gray-700">Logged in</span>
-        </div>
-      </header>
+      <Header />
 
       <main className="container mx-auto p-6">
         <h2 className="text-3xl font-bold text-red-500 mb-4">PDF Viewer</h2>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Header from './Header'; // Adjust path based on your file structure
 
 const JoinedVideo = () => {
   const location = useLocation();
@@ -34,7 +35,7 @@ const JoinedVideo = () => {
           },
         };
 
-        const response = await axios.get(`http://localhost:5001/api/progress/get/${collectionId}/video/${materialId}`, config);
+        const response = await axios.get(`http://localhost:5001/api/progress/${collectionId}/video/${materialId}`, config);
         if (response.data) {
           setCurrentTime(response.data.progress || 0); // Set current time from progress
           setNotes(response.data.notes || '');
@@ -122,14 +123,7 @@ const JoinedVideo = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-gray-300 py-4">
-        <div className="container mx-auto flex justify-between">
-          <button className="text-red-500 text-xl font-bold" onClick={() => navigate('/home-logged-in')}>
-            Ketchup
-          </button>
-          <span className="text-gray-700">Logged in</span>
-        </div>
-      </header>
+      <Header />
 
       <main className="container mx-auto p-6">
         <h2 className="text-3xl font-bold text-red-500 mb-4">Video Viewer</h2>

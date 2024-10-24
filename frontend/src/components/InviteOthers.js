@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header'; // Adjust path based on your file structure
 
 const InviteOthers = () => {
   const navigate = useNavigate();

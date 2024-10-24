@@ -245,6 +245,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Header from './Header'; // Adjust path based on your file structure
 
 const JoinedCollection = () => {
   const navigate = useNavigate();
@@ -318,47 +319,54 @@ const JoinedCollection = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-red-500 mb-4">{collection?.name}</h1>
+    <div className="min-h-screen bg-gray-100">
+      {/* Reusable Header component */}
+      <Header />
 
-      {/* Button for viewing progress */}
-      <button className="bg-gray-300 px-4 py-2 rounded mb-6">
-        View Your Progress
-      </button>
+      {/* Main content */}
+      <main className="container mx-auto p-6">
+        {/* Collection Name */}
+        <h1 className="text-3xl font-bold text-red-500 mb-4">{collection?.name}</h1>
 
-      {/* Display Videos */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold mb-2">Videos:</h2>
-        <div className="grid grid-cols-3 gap-6">
-          {collection?.videos.length > 0 ? (
-            collection.videos.map((video, index) => (
-              <div key={index} className="bg-gray-300 px-4 py-2 rounded text-center">
-                <button onClick={() => viewVideo(video)}>
-                  Video {index + 1}
+        {/* Button for viewing progress */}
+        <button className="bg-gray-300 px-4 py-2 rounded mb-6">
+          View Your Progress
+        </button>
+
+        {/* Display Videos */}
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-2">Videos:</h2>
+          <div className="grid grid-cols-3 gap-6">
+            {collection?.videos.length > 0 ? (
+              collection.videos.map((video, index) => (
+                <div key={index} className="bg-gray-300 px-4 py-2 rounded text-center">
+                  <button onClick={() => viewVideo(video)}>
+                    Video {index + 1}
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No videos uploaded</p>
+            )}
+          </div>
+        </div>
+
+        {/* Display PDFs */}
+        <div>
+          <h2 className="text-xl font-bold mb-2">PDFs:</h2>
+          <div className="grid grid-cols-3 gap-6">
+            {collection?.pdfs.length > 0 ? (
+              collection.pdfs.map((pdf, index) => (
+                <button key={index} onClick={() => viewPDF(pdf)}>
+                  {pdf.filePath ? `PDF ${index + 1}` : `PDF ${index + 1} (No file path)`}
                 </button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No videos uploaded</p>
-          )}
+              ))
+            ) : (
+              <p className="text-gray-500">No PDFs uploaded</p>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Display PDFs */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">PDFs:</h2>
-        <div className="grid grid-cols-3 gap-6">
-          {collection?.pdfs.length > 0 ? (
-            collection.pdfs.map((pdf, index) => (
-              <button key={index} onClick={() => viewPDF(pdf)}>
-                {pdf.filePath ? `PDF ${index + 1}` : `PDF ${index + 1} (No file path)`}
-              </button>
-            ))
-          ) : (
-            <p className="text-gray-500">No PDFs uploaded</p>
-          )}
-        </div>
-      </div>
+      </main>
     </div>
   );
 };

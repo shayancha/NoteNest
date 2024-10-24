@@ -42,6 +42,8 @@ function App() {
 
           <Route path="/joined-pdf" element={<JoinedPDF />} />
           <Route path="/joined-video" element={<JoinedVideo />} />
+
+          <Route path="/created-collection/:collectionId/:materialId/students-progress" element={<ViewStudentProgress />} />
           
           {/* <Route path="/created1" element={<CreatedCollection />} />
           <Route path="/created1/view-student-progress" element={<ViewStudentProgress />} />
