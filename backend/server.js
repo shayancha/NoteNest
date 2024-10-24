@@ -26,11 +26,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Route files
 const userRoutes = require('./routes/userRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
+const progressRoutes = require('./routes/progressRoutes');
 
 // Mount routers
 app.use('/api/users', userRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/progress', progressRoutes);
+
 
 
 const PORT = process.env.PORT || 5001;

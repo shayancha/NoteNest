@@ -295,6 +295,8 @@ const CreatedCollection = () => {
 
   // Fetch the specific collection by ID from the backend
   useEffect(() => {
+    console.log('Collection ID:', id); // Add this line to debug the ID
+
     const fetchCollection = async () => {
       try {
         const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
@@ -309,7 +311,8 @@ const CreatedCollection = () => {
           },
         };
 
-        const response = await axios.get(`/api/collections/${id}`, config); // Fetch collection by ID
+        const response = await axios.get(`http://localhost:5001/api/collections/api/collections/${id}`, config); // Fetch collection by ID
+        console.log(response.data);
         setCollection(response.data); // Set the collection data
         setLoading(false);
       } catch (error) {
@@ -334,7 +337,6 @@ const CreatedCollection = () => {
       </header>
 
       <main className="container mx-auto p-6 text-center">
-        <h2 className="text-3xl font-bold text-red-500 mb-4">Collection Beans</h2>
 
         {message && <p className="text-red-500 mb-4">{message}</p>}
 
@@ -342,7 +344,7 @@ const CreatedCollection = () => {
           <p>Loading...</p>
         ) : collection ? (
           <div>
-            <h3 className="text-xl font-bold mb-2">{collection.name}</h3>
+            <h2 className="text-3xl font-bold text-red-500 mb-4">{collection.name}</h2>
 
             {/* Display the join code */}
             <p className="text-lg font-bold mb-4">Join Code: {collection.joinCode ? collection.joinCode : 'No join code available'}</p>

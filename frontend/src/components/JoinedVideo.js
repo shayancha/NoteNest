@@ -1,10 +1,16 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react'; // Added useEffect
+import { useNavigate, useLocation } from 'react-router-dom'; // Added useLocation for getting collection and material IDs
+import axios from 'axios'; // Added axios for making API calls
 
 const JoinedVideo = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const videoRef = useRef(null); // To track the video element for getting timestamps
 
+  // Retrieve collectionId and videoFileId from location state
+  const collectionId = location.state?.collectionId;
+  const materialId = location.state?.videoFileId;
+  
   // State to manage notes, new question input, list of posted questions, and editing state
   const [notes, setNotes] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false); // Tracks if the user is editing notes
@@ -12,6 +18,7 @@ const JoinedVideo = () => {
   const [questionsList, setQuestionsList] = useState([]); // List of posted questions
   const [editingIndex, setEditingIndex] = useState(null); // Tracks the question being edited
   const [editingQuestion, setEditingQuestion] = useState(''); // Holds the question being edited
+  const [progress, setProgress] = useState(null); // For storing user progress
 
   // Function to toggle between editing and saving notes
   const handleEditNotes = () => {
@@ -22,6 +29,7 @@ const JoinedVideo = () => {
       // When editing, enable the textarea
       setIsEditingNotes(true);
     }
+    saveProgress(); // Save progress when notes are saved
   };
 
   // Function to handle posting a new question with a timestamp
@@ -32,6 +40,8 @@ const JoinedVideo = () => {
       // Add the new question with the timestamp to the list of posted questions
       setQuestionsList([...questionsList, { text: newQuestion, timestamp: videoTime }]);
       setNewQuestion(''); // Clear the input field after posting
+
+      saveProgress(); // Save progress when a question is posted
     }
   };
 
@@ -54,6 +64,8 @@ const JoinedVideo = () => {
   const handleEditQuestion = (index) => {
     setEditingIndex(index); // Set the question being edited
     setEditingQuestion(questionsList[index].text); // Copy the current question text to editing state
+
+    saveProgress();
   };
 
   // Function to save the edited question
@@ -62,12 +74,62 @@ const JoinedVideo = () => {
     updatedQuestions[editingIndex].text = editingQuestion; // Update the question text
     setQuestionsList(updatedQuestions); // Save the updated question list
     setEditingIndex(null); // Stop editing mode
+
+    saveProgress(); // Save progress when a question is edited
   };
 
   // Function to delete a question
   const deleteQuestion = (index) => {
     const updatedQuestions = questionsList.filter((_, i) => i !== index); // Remove the selected question
     setQuestionsList(updatedQuestions); // Update the list of questions
+
+    saveProgress(); // Save progress when a question is deleted
+  };
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      try {
+        const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await axios.get(`/api/progress?collectionId=${collectionId}&materialId=${materialId}&materialType=video`, config); 
+        setProgress(response.data); // Set the progress state (notes, questions, etc.)
+      } catch (error) {
+        console.error('Error fetching progress:', error);
+      }
+    };
+  
+    fetchProgress();
+  }, [collectionId, materialId]);
+
+  // Function to save progress (calls backend)
+  const saveProgress = async () => {
+    try {
+      const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const timestamp = videoRef.current?.currentTime || 0; // Get the current video time
+
+      const data = {
+        collectionId,
+        materialId,
+        materialType: 'video', // Type is 'video'
+        progress: timestamp, // Save the current video timestamp
+        notes,
+        questions: questionsList, // Save the list of questions
+      };
+  
+      await axios.post('/api/progress', data, config);
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
   };
 
   return (
@@ -82,7 +144,7 @@ const JoinedVideo = () => {
       </header>
 
       <main className="container mx-auto p-6">
-        <h2 className="text-3xl font-bold text-red-500 mb-4">Joined Video 1</h2>
+        <h2 className="text-3xl font-bold text-red-500 mb-4">Joined Video Viewer</h2>
 
         <div className="grid grid-cols-2 gap-6">
           {/* Video Player */}

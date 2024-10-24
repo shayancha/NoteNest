@@ -35,12 +35,13 @@ function App() {
           <Route path="/upload-pdf" element={<UploadPDF />} />
           <Route path="/upload-video" element={<UploadVideo />} />
 
-          <Route path="/collection/created/:id" element={<CreatedCollection />} />
+          <Route path="/created-collection/:id" element={<CreatedCollection />} />
           <Route path="/joined-collection/:collectionId" element={<JoinedCollection />} />
 
           <Route path="/join-collection" element={<JoinCollection />} />
 
           <Route path="/joined-pdf" element={<JoinedPDF />} />
+          <Route path="/joined-video" element={<JoinedVideo />} />
           
           {/* <Route path="/created1" element={<CreatedCollection />} />
           <Route path="/created1/view-student-progress" element={<ViewStudentProgress />} />
