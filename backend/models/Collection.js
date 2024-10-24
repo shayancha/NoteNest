@@ -16,7 +16,7 @@ const collectionSchema = new mongoose.Schema({
   videos: [videoSchema],
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-});
+}, {versionKey : false});
 
 const Collection = mongoose.model('Collection', collectionSchema);
 

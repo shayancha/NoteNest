@@ -1,91 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react'; // Added useEffect
-import { useNavigate, useLocation } from 'react-router-dom'; // Added useLocation for getting collection and material IDs
-import axios from 'axios'; // Added axios for making API calls
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const JoinedVideo = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const videoRef = useRef(null); // To track the video element for getting timestamps
-
-  // Retrieve collectionId and videoFileId from location state
-  const collectionId = location.state?.collectionId;
-  const materialId = location.state?.videoFileId;
+  const navigate = useNavigate();
   
-  // State to manage notes, new question input, list of posted questions, and editing state
+  const collectionId = location.state?.collectionId;
+  const videoFileId = location.state?.videoFileId;
+  const materialId = videoFileId;
+
   const [notes, setNotes] = useState('');
-  const [isEditingNotes, setIsEditingNotes] = useState(false); // Tracks if the user is editing notes
-  const [newQuestion, setNewQuestion] = useState(''); // For adding new questions
-  const [questionsList, setQuestionsList] = useState([]); // List of posted questions
-  const [editingIndex, setEditingIndex] = useState(null); // Tracks the question being edited
-  const [editingQuestion, setEditingQuestion] = useState(''); // Holds the question being edited
-  const [progress, setProgress] = useState(null); // For storing user progress
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [newQuestion, setNewQuestion] = useState('');
+  const [questionsList, setQuestionsList] = useState([]);
+  const [currentTime, setCurrentTime] = useState(0); // Track current timestamp
+  const [totalDuration, setTotalDuration] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingQuestion, setEditingQuestion] = useState('');
 
-  // Function to toggle between editing and saving notes
-  const handleEditNotes = () => {
-    if (isEditingNotes) {
-      // When saving notes, disable the textarea
-      setIsEditingNotes(false);
-    } else {
-      // When editing, enable the textarea
-      setIsEditingNotes(true);
-    }
-    saveProgress(); // Save progress when notes are saved
-  };
+  const videoUrl = location.state?.videoUrl;
 
-  // Function to handle posting a new question with a timestamp
-  const postQuestion = () => {
-    if (newQuestion.trim() !== '') {
-      const videoTime = videoRef.current?.currentTime || 0; // Get current video time in seconds
+  const videoRef = useRef(null);
 
-      // Add the new question with the timestamp to the list of posted questions
-      setQuestionsList([...questionsList, { text: newQuestion, timestamp: videoTime }]);
-      setNewQuestion(''); // Clear the input field after posting
-
-      saveProgress(); // Save progress when a question is posted
-    }
-  };
-
-  // Function to format time in seconds into a readable format (MM:SS or HH:MM:SS)
-  const formatTime = (seconds) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    return h > 0 ? `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}` : `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-
-  // Function to handle clicking the timestamp and setting the video time
-  const jumpToTime = (time) => {
-    if (videoRef.current && !isNaN(time)) {
-      videoRef.current.currentTime = time;
-    }
-  };
-
-  // Function to handle editing a posted question
-  const handleEditQuestion = (index) => {
-    setEditingIndex(index); // Set the question being edited
-    setEditingQuestion(questionsList[index].text); // Copy the current question text to editing state
-
-    saveProgress();
-  };
-
-  // Function to save the edited question
-  const saveEditedQuestion = () => {
-    const updatedQuestions = [...questionsList];
-    updatedQuestions[editingIndex].text = editingQuestion; // Update the question text
-    setQuestionsList(updatedQuestions); // Save the updated question list
-    setEditingIndex(null); // Stop editing mode
-
-    saveProgress(); // Save progress when a question is edited
-  };
-
-  // Function to delete a question
-  const deleteQuestion = (index) => {
-    const updatedQuestions = questionsList.filter((_, i) => i !== index); // Remove the selected question
-    setQuestionsList(updatedQuestions); // Update the list of questions
-
-    saveProgress(); // Save progress when a question is deleted
-  };
-
+  // Fetch user progress when the component mounts
   useEffect(() => {
     const fetchProgress = async () => {
       try {
@@ -95,8 +33,13 @@ const JoinedVideo = () => {
             Authorization: `Bearer ${token}`,
           },
         };
-        const response = await axios.get(`/api/progress?collectionId=${collectionId}&materialId=${materialId}&materialType=video`, config); 
-        setProgress(response.data); // Set the progress state (notes, questions, etc.)
+
+        const response = await axios.get(`http://localhost:5001/api/progress/get/${collectionId}/video/${materialId}`, config);
+        if (response.data) {
+          setCurrentTime(response.data.progress || 0); // Set current time from progress
+          setNotes(response.data.notes || '');
+          setQuestionsList(response.data.questions);
+        }
       } catch (error) {
         console.error('Error fetching progress:', error);
       }
@@ -105,7 +48,13 @@ const JoinedVideo = () => {
     fetchProgress();
   }, [collectionId, materialId]);
 
-  // Function to save progress (calls backend)
+  useEffect(() => {
+    if (questionsList.length > 0 && !isEditingNotes){
+      saveProgress();
+    }
+  }, [questionsList, currentTime, isEditingNotes]);
+
+  // Save progress function
   const saveProgress = async () => {
     try {
       const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
@@ -115,21 +64,60 @@ const JoinedVideo = () => {
         },
       };
 
-      const timestamp = videoRef.current?.currentTime || 0; // Get the current video time
-
       const data = {
         collectionId,
         materialId,
-        materialType: 'video', // Type is 'video'
-        progress: timestamp, // Save the current video timestamp
-        notes,
-        questions: questionsList, // Save the list of questions
+        materialType: 'video',
+        progress: currentTime, // Save current timestamp as progress
+        notes: notes,
+        questions: questionsList,
       };
-  
-      await axios.post('/api/progress', data, config);
+      await axios.post('http://localhost:5001/api/progress', data, config);
     } catch (error) {
       console.error('Error saving progress:', error);
     }
+  };
+
+  // Handle time update in the video player
+  const handleTimeUpdate = () => {
+    setCurrentTime(videoRef.current.currentTime);
+  };
+
+  const handleLoadedMetadata = () => {
+    setTotalDuration(videoRef.current.duration);
+  };
+
+  // Handle notes editing
+  const handleEditNotes = () => {
+    setIsEditingNotes(!isEditingNotes);
+  };
+
+  // Handle posting a new question
+  const postQuestion = () => {
+    if (newQuestion.trim() !== '') {
+      setQuestionsList([...questionsList, { text: newQuestion, timestamp: currentTime }]);
+      setNewQuestion('');
+    }
+  };
+
+  // Handle editing an existing question
+  const handleEditQuestion = (index) => {
+    setEditingIndex(index);
+    setEditingQuestion(questionsList[index].text);
+  };
+
+  // Handle saving an edited question
+  const saveEditedQuestion = () => {
+    const updatedQuestions = [...questionsList];
+    updatedQuestions[editingIndex].text = editingQuestion;
+    setQuestionsList(updatedQuestions);
+    setEditingIndex(null);
+  };
+
+  // Handle deleting a question
+  const deleteQuestion = (index) => {
+    const updatedQuestions = questionsList.filter((_, i) => i !== index);
+    setQuestionsList(updatedQuestions);
   };
 
   return (
@@ -144,26 +132,27 @@ const JoinedVideo = () => {
       </header>
 
       <main className="container mx-auto p-6">
-        <h2 className="text-3xl font-bold text-red-500 mb-4">Joined Video Viewer</h2>
+        <h2 className="text-3xl font-bold text-red-500 mb-4">Video Viewer</h2>
 
         <div className="grid grid-cols-2 gap-6">
-          {/* Video Player */}
           <div className="p-0">
-            <video
-              ref={videoRef} // Reference to the video element
-              controls
-              width="100%"
-              className="rounded"
-              style={{ height: 'auto' }}
-            >
-              <source src="/videos/example-video.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            {/* Video Player Section */}
+            {videoUrl ? (
+              <video
+                ref={videoRef}
+                controls
+                src={videoUrl}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                style={{ width: '100%', height: 'auto' }}
+              />
+            ) : (
+              <p>No video available</p>
+            )}
           </div>
 
-          {/* Stacked Notes and Question Section */}
+          {/* Notes and Questions Section */}
           <div className="grid grid-cols-1 gap-6">
-            {/* Notes Section */}
             <div>
               <h3 className="text-xl font-bold">Notes</h3>
               <textarea
@@ -171,17 +160,16 @@ const JoinedVideo = () => {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add notes"
                 className={`border rounded w-full h-40 p-2 mt-4 ${isEditingNotes ? '' : 'bg-gray-200 cursor-not-allowed'}`}
-                disabled={!isEditingNotes} // Disable if not editing
+                disabled={!isEditingNotes}
               ></textarea>
               <button
                 onClick={handleEditNotes}
                 className="bg-green-400 px-4 py-2 mt-4 rounded text-white"
               >
-                {isEditingNotes ? 'Save' : 'Edit'} {/* Button text toggles between Edit and Save */}
+                {isEditingNotes ? 'Save' : 'Edit'}
               </button>
             </div>
 
-            {/* New Question Section */}
             <div>
               <h3 className="text-xl font-bold">Add a Question</h3>
               <textarea
@@ -198,7 +186,6 @@ const JoinedVideo = () => {
               </button>
             </div>
 
-            {/* Display Posted Questions */}
             <div className="bg-white p-4 mt-6 rounded shadow">
               <h4 className="text-xl font-bold mb-2">Posted Questions</h4>
               {questionsList.length > 0 ? (
@@ -207,10 +194,10 @@ const JoinedVideo = () => {
                     <li key={index} className="text-gray-700 mb-4">
                       <div className="flex items-center justify-between">
                         <textarea
-                          value={index === editingIndex ? editingQuestion : q.text} // Display the editing text if editing
-                          onChange={(e) => setEditingQuestion(e.target.value)} // Track changes only during editing
+                          value={index === editingIndex ? editingQuestion : q.text}
+                          onChange={(e) => setEditingQuestion(e.target.value)}
                           className={`border rounded w-full p-2 ${index === editingIndex ? '' : 'bg-gray-200 cursor-not-allowed'}`}
-                          disabled={index !== editingIndex} // Enable editing only for the selected question
+                          disabled={index !== editingIndex}
                         ></textarea>
                         <div className="ml-4 flex space-x-2">
                           {index === editingIndex ? (
@@ -228,7 +215,6 @@ const JoinedVideo = () => {
                               Edit
                             </button>
                           )}
-                          {/* Delete Button */}
                           <button
                             onClick={() => deleteQuestion(index)}
                             className="bg-red-400 px-4 py-2 rounded text-white"
@@ -238,13 +224,7 @@ const JoinedVideo = () => {
                         </div>
                       </div>
                       <div className="flex justify-between items-center mt-1 text-sm text-gray-500">
-                        <a
-                          href="#"
-                          onClick={() => jumpToTime(q.timestamp)}
-                          className="text-blue-500 underline"
-                        >
-                          {formatTime(q.timestamp)}
-                        </a>
+                        <span>Timestamp {Math.floor(q.timestamp)} seconds</span>
                       </div>
                     </li>
                   ))}
@@ -261,3 +241,4 @@ const JoinedVideo = () => {
 };
 
 export default JoinedVideo;
+

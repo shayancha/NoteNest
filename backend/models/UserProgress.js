@@ -14,7 +14,7 @@ const progressSchema = new mongoose.Schema({
       timestamp: { type: Number, default: 0 }, // Video timestamp or PDF page number
     }
   ]
-}, { timestamps: true });
+}, { timestamps: true , versionKey : false});
 
 const UserProgress = mongoose.model('UserProgress', progressSchema);
 

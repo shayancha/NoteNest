@@ -35,14 +35,15 @@ const CreateCollection = () => {
   
     pdfs.forEach((pdf) => formData.append('pdfs', pdf));  // Adding pdfs array
     videos.forEach((video) => formData.append('videos', video));  // Adding videos array
-  
+
     try {
-      const response = await axios.post('/api/collections/create', formData, {
+      const response = await axios.post('http://localhost:5001/api/collections/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`,  // Token added for authentication
         },
       });
+
       setMessage('Collection created successfully');
       navigate('/home-logged-in');
     } catch (error) {

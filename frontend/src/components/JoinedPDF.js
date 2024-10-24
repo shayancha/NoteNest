@@ -41,10 +41,10 @@ const JoinedPDF = () => {
         };
         // const response = await axios.get(`/api/progress?collectionId=${collectionId}&materialId=${materialId}&materialType=pdf`, config); 
         const response = await axios.get(`http://localhost:5001/api/progress/get/${collectionId}/pdf/${materialId}`, config); 
+        console.log(response.data);
         if (response.data) {
           setCurrentPage(response.data.progress || 1); // Set current page from progress
           setNotes(response.data.notes || '');
-          console.log(response.data.questions)
           setQuestionsList(response.data.questions);
         }
       } catch (error) {
@@ -57,8 +57,10 @@ const JoinedPDF = () => {
 
   useEffect(() => {
     console.log(questionsList);
-    saveProgress();
-  }, [questionsList])
+    if (questionsList.length > 0 && !isEditingNotes){
+      saveProgress();
+    }
+  }, [questionsList, currentPage, isEditingNotes])
 
   // Save progress function
   const saveProgress = async () => {
@@ -78,7 +80,7 @@ const JoinedPDF = () => {
         notes: notes,
         questions: questionsList,
       };
-      await axios.post('/api/progress', data, config);
+      await axios.post('http://localhost:5001/api/progress', data, config);
     } catch (error) {
       console.error('Error saving progress:', error);
     }
@@ -88,13 +90,11 @@ const JoinedPDF = () => {
   const onPageChange = (e) => {
     const newPage = e.currentPage + 1;
     setCurrentPage(newPage);
-    saveProgress(); // Save progress when the page changes
   };
 
   // Handle saving notes
   const handleEditNotes = () => {
     setIsEditingNotes(!isEditingNotes);
-    saveProgress(); // Save progress when notes are edited
   };
 
   // Handle posting a new question
@@ -103,7 +103,6 @@ const JoinedPDF = () => {
       setQuestionsList([...questionsList, { text: newQuestion, page: currentPage }]);
       setNewQuestion('');
     }
-    // saveProgress(); // Save progress when a new question is posted
   };
 
   // Handle editing an existing question
@@ -118,14 +117,12 @@ const JoinedPDF = () => {
     updatedQuestions[editingIndex].text = editingQuestion;
     setQuestionsList(updatedQuestions);
     setEditingIndex(null);
-    saveProgress(); // Save progress when a question is edited
   };
 
   // Handle deleting a question
   const deleteQuestion = (index) => {
     const updatedQuestions = questionsList.filter((_, i) => i !== index);
     setQuestionsList(updatedQuestions);
-    saveProgress(); // Save progress when a question is deleted
   };
 
   return (
@@ -140,7 +137,7 @@ const JoinedPDF = () => {
       </header>
 
       <main className="container mx-auto p-6">
-        <h2 className="text-3xl font-bold text-red-500 mb-4">Joined PDF Viewer</h2>
+        <h2 className="text-3xl font-bold text-red-500 mb-4">PDF Viewer</h2>
 
         <div className="grid grid-cols-2 gap-6">
           <div className="p-0">

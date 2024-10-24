@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const createCollection = async (req, res) => {
   try {
     const { name } = req.body;
-    console.log(name);
     // Check if the name field is provided
     if (!name) {
       return res.status(400).json({ message: 'Collection name is required' });
@@ -15,6 +14,7 @@ const createCollection = async (req, res) => {
 
     // Handle pdfs and videos (assuming multer handles file uploads)
     const pdfFiles = req.files?.pdfs || [];  // Safely handle undefined
+
     const videoFiles = req.files?.videos || [];  // Safely handle undefined
 
     // Create the new collection in the database
@@ -106,7 +106,6 @@ const joinCollectionByCode = async (req, res) => {
   const getJoinedCollections = async (req, res) => {
     try {
       // Fetch collections where the user is in `joinedUsers`
-      console.log('User ID:', req.user._id); // Add this before the database query
       const joinedCollections = await Collection.find({ students: req.user._id });
   
       if (!joinedCollections || joinedCollections.length === 0) {

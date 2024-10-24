@@ -295,8 +295,7 @@ const CreatedCollection = () => {
 
   // Fetch the specific collection by ID from the backend
   useEffect(() => {
-    console.log('Collection ID:', id); // Add this line to debug the ID
-
+    
     const fetchCollection = async () => {
       try {
         const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : null;
@@ -312,7 +311,7 @@ const CreatedCollection = () => {
         };
 
         const response = await axios.get(`http://localhost:5001/api/collections/api/collections/${id}`, config); // Fetch collection by ID
-        console.log(response.data);
+
         setCollection(response.data); // Set the collection data
         setLoading(false);
       } catch (error) {

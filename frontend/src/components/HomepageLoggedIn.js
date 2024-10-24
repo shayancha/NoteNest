@@ -30,7 +30,6 @@ const HomeLoggedIn = () => {
         const responseCreated = await axios.get('http://localhost:5001/api/collections/created', config);
         const responseJoined = await axios.get('http://localhost:5001/api/collections/joined', config);
         // Set collections if they exist, otherwise set empty arrays
-        console.log(Object.keys(responseJoined.data));
         // Handle joined collections
         if (Array.isArray(responseCreated.data['createdCollections'])) {
           setCreatedCollections(responseCreated.data['createdCollections']);  // Set collections to the array if it's directly in responseJoined.data

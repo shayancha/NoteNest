@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const HomepageNotLoggedIn = () => {
   const navigate = useNavigate();
+  localStorage.clear();
 
   return (
     <div className="min-h-screen bg-gray-100">

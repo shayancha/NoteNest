@@ -263,25 +263,20 @@ const JoinedCollection = () => {
 
     const pdfFileId = pdfFile._id;
 
-    console.log("pdfFileId " +pdfFileId);
-    console.log("collectionId " + collectionId);
-
-    console.log("PDF URL: ", pdfUrl);
     navigate('/joined-pdf', { state: { collectionId, pdfFileId, pdfUrl } });
   };
 
   // Function to handle navigation to the JoinedVideo page and pass the video file path
   const viewVideo = (videoFile) => {
-    console.log("Video File: ", videoFile);
-    const videoFilePath = videoFile.startsWith('uploads/') 
-      ? videoFile 
-      : `uploads/${videoFile}`;
-
-    console.log("Corrected Video File Path: ", videoFilePath);
-
+    console.log("Video File: ", videoFile.filePath);
+    const videoFilePath = videoFile.filePath.startsWith('uploads/') 
+      ? videoFile.filePath
+      : `uploads/${videoFile.filePath}`;
+    
+    const videoFileId = videoFile._id;
     const videoUrl = `http://localhost:5001/${videoFilePath}`;
-    console.log("Video URL: ", videoUrl);
-    navigate('/joined-video', { state: { videoUrl } });
+    
+    navigate('/joined-video', { state: { collectionId, videoFileId, videoUrl} });
   };
 
   // Fetch collection data when the component is mounted
@@ -338,7 +333,7 @@ const JoinedCollection = () => {
           {collection?.videos.length > 0 ? (
             collection.videos.map((video, index) => (
               <div key={index} className="bg-gray-300 px-4 py-2 rounded text-center">
-                <button onClick={() => viewVideo(video.filePath)}>
+                <button onClick={() => viewVideo(video)}>
                   Video {index + 1}
                 </button>
               </div>
