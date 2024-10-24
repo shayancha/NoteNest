@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const createCollection = async (req, res) => {
   try {
     const { name } = req.body;
-
+    console.log(name);
     // Check if the name field is provided
     if (!name) {
       return res.status(400).json({ message: 'Collection name is required' });
@@ -38,14 +38,14 @@ const createCollection = async (req, res) => {
 const getUserCollections = async (req, res) => {
   try {
     const createdCollections = await Collection.find({ userId: req.user._id });  // Use userId instead of user
-
+    
     if (!createdCollections || createdCollections.length === 0) {
-        return res.status(404).json({ message: 'No collections found for this user' });
-        }
+      return res.json({});
+    }
+    else {
+      return res.json({createdCollections});
+    }
 
-    res.json({
-        createdCollections,
-        });
 
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving collections' });
@@ -110,10 +110,13 @@ const joinCollectionByCode = async (req, res) => {
       const joinedCollections = await Collection.find({ students: req.user._id });
   
       if (!joinedCollections || joinedCollections.length === 0) {
-        return res.status(404).json({ message: 'No joined collections found' });
+        return res.json({});
       }
   
-      res.json(joinedCollections);
+      else{
+        return res.json({joinedCollections});
+      }    
+
     } catch (error) {
       console.error('Error fetching joined collections:', error);
       res.status(500).json({ message: 'Error fetching joined collections' });

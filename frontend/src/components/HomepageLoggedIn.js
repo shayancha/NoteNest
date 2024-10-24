@@ -28,15 +28,18 @@ const HomeLoggedIn = () => {
 
         // Fetch created collections
         const responseCreated = await axios.get('http://localhost:5001/api/collections/created', config);
-        // Fetch joined collections
         const responseJoined = await axios.get('http://localhost:5001/api/collections/joined', config);
-
         // Set collections if they exist, otherwise set empty arrays
-        setCreatedCollections(responseCreated.data.createdCollections || []);
-        
+        console.log(Object.keys(responseJoined.data));
         // Handle joined collections
-        if (Array.isArray(responseJoined.data)) {
-          setJoinedCollections(responseJoined.data);  // Set collections to the array if it's directly in responseJoined.data
+        if (Array.isArray(responseCreated.data['createdCollections'])) {
+          setCreatedCollections(responseCreated.data['createdCollections']);  // Set collections to the array if it's directly in responseJoined.data
+        } else {
+          setCreatedCollections([]);  // Default to an empty array if no collections are found
+        }
+        
+        if (Array.isArray(responseJoined.data['joinedCollections'])) {
+          setJoinedCollections(responseJoined.data['joinedCollections']);  // Set collections to the array if it's directly in responseJoined.data
         } else {
           setJoinedCollections([]);  // Default to an empty array if no collections are found
         }
@@ -51,6 +54,10 @@ const HomeLoggedIn = () => {
 
     fetchUserCollections();
   }, []);
+
+  useEffect(()=> {
+    console.log(joinedCollections);
+  }, [joinedCollections])
 
   return (
     <div className="min-h-screen bg-gray-100">
