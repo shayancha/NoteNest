@@ -17,12 +17,23 @@ const createCollection = async (req, res) => {
 
     const videoFiles = req.files?.videos || [];  // Safely handle undefined
 
+    const pdfs = pdfFiles.map(file => ({
+      filePath: file.path,        // The location where the file is saved
+      originalName: file.originalname, // The original file name
+    }));
+
+    // Store Video file paths and original names
+    const videos = videoFiles.map(file => ({
+      filePath: file.path,        // The location where the file is saved
+      originalName: file.originalname, // The original file name
+    }));
+
     // Create the new collection in the database
     const newCollection = new Collection({
       name,
       joinCode,
-      pdfs: pdfFiles.map(file => ({ filePath: file.path })),  // Storing file paths
-      videos: videoFiles.map(file => ({ filePath: file.path })),  // Storing file paths
+      pdfs,  // Storing file paths
+      videos,  // Storing file paths
       userId: req.user._id,  // Ensure user ID is present from JWT token
     });
 

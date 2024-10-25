@@ -28,7 +28,7 @@ const SignIn = () => {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-gray-300 py-4">
         <div className="container mx-auto flex justify-between">
-          <button className="text-red-500 text-xl font-bold" onClick={() => navigate('/')}>Ketchup</button>
+          <button className="text-red-500 text-xl font-bold" onClick={() => navigate('/')}>NoteNest</button>
         </div>
       </header>
 
