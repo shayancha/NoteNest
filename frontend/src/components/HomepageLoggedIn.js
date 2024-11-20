@@ -55,9 +55,9 @@ const HomeLoggedIn = () => {
     fetchUserCollections();
   }, []);
 
-  useEffect(()=> {
-    console.log(joinedCollections);
-  }, [joinedCollections])
+  // useEffect(()=> {
+  //   console.log(joinedCollections);
+  // }, [joinedCollections])
 
   return (
     <div className="min-h-screen bg-gray-100">

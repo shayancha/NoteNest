@@ -26,7 +26,7 @@ const SignUp = () => {
       
       // Store the user data or token in localStorage
       localStorage.setItem('user', JSON.stringify(response));
-      navigate('/home-logged-in');
+      navigate('/signin');
     } catch (error) {
       // Handle registration error, display error message if any
       setErrorMessage(error.response?.data?.msg || 'Error signing up');
@@ -78,6 +78,7 @@ const SignUp = () => {
           <button
             type="submit"
             className="bg-red-500 text-white px-4 py-2 rounded"
+            // onClick={() => navigate('/signin')}
           >
             Sign up
           </button>
